@@ -15,7 +15,7 @@ import FieldEdit from './FieldEdit'
 
   
 
-const FormUi = ({jsonForm, onFieldUpdate}) => {
+const FormUi = ({jsonForm, onFieldUpdate, deleteField}) => {
   return (
     <div className='border p-5 md:w-[600px] rounded-lg'>
         <h2 className='font-bold text-center text-2xl'>{jsonForm?.formTitle}</h2>
@@ -80,7 +80,7 @@ const FormUi = ({jsonForm, onFieldUpdate}) => {
               }
 
               <div>
-                <FieldEdit defaultValue={field} onUpdate={(value)=>onFieldUpdate(value,index)}/>
+                <FieldEdit defaultValue={field} onUpdate={(value)=>onFieldUpdate(value,index)} deleteField={()=>deleteField(index)}/>
               </div>
             </div>
           ))

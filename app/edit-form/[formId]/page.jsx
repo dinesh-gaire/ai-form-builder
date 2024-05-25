@@ -46,7 +46,14 @@ const EditForm = ({params}) => {
       .set({
         jsonform:jsonForm
       }).where(and(eq(JsonForms.id, record.id), eq(JsonForms.createdBy, user?.primaryEmailAddress?.emailAddress)))
-      console.log(result);
+      // console.log(result);
+    }
+
+    const deleteField=(indexToRemove)=>{
+      const result = jsonForm.fields.filter((item,index)=>index!=indexToRemove)
+      // console.log((result));
+      jsonForm.fields = result;
+      setUpdateTrigger(Date.now())
     }
   return (
     <div className='p-10'>
@@ -58,7 +65,7 @@ const EditForm = ({params}) => {
           Controller
         </div>
         <div className='md:col-span-2 border rounded-lg p-5 flex items-center justify-center'>
-          <FormUi jsonForm={jsonForm} onFieldUpdate={onFieldUpdate}/>
+          <FormUi jsonForm={jsonForm} onFieldUpdate={onFieldUpdate} deleteField={(index)=>deleteField(index)}/>
         </div>
       </div>
     </div>
