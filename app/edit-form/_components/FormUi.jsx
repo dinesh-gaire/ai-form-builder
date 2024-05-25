@@ -15,9 +15,9 @@ import FieldEdit from './FieldEdit'
 
   
 
-const FormUi = ({jsonForm, onFieldUpdate, deleteField}) => {
+const FormUi = ({jsonForm, onFieldUpdate, deleteField, selectedTheme}) => {
   return (
-    <div className='border p-5 md:w-[600px] rounded-lg'>
+    <div className='border p-5 md:w-[600px] rounded-lg' data-theme={selectedTheme}>
         <h2 className='font-bold text-center text-2xl'>{jsonForm?.formTitle}</h2>
         <h2 className='text-sm text-gray-400 text-center'>{jsonForm?.formHeading}</h2>
         {jsonForm && jsonForm.fields && jsonForm.fields.length > 0 && (
@@ -85,7 +85,7 @@ const FormUi = ({jsonForm, onFieldUpdate, deleteField}) => {
             </div>
           ))
         )}
-
+        <button className='btn btn-primary'>Submit</button>
     </div>
   )
 }
