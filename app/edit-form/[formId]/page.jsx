@@ -11,6 +11,8 @@ import FormUi from '../_components/FormUi'
 const EditForm = ({params}) => {
     const {user} = useUser();
     const [jsonForm, setJsonForm] = useState([]);
+    const [updateTrigger, setUpdateTrigger] = useState();
+    const [record, setRecord] = useState([]);
     const router = useRouter();
     useEffect(()=>{
       user && GetFormData();
@@ -19,8 +21,32 @@ const EditForm = ({params}) => {
         const result = await db.select().from(JsonForms)
         .where(and(eq(JsonForms.id, params?.formId), eq(JsonForms.createdBy, user?.primaryEmailAddress?.emailAddress)))
 
-        console.log(result[0].jsonform);
+        // console.log(result[0].jsonform);
+        setRecord(result[0])
         setJsonForm(JSON.parse(result[0].jsonform))
+    }
+
+    useEffect(()=>{
+      if(updateTrigger){
+        setJsonForm(jsonForm);
+        updateJsonFormInDb();
+      }
+    },[updateTrigger])
+
+    const onFieldUpdate=(value,index)=>{
+      // console.log(value,index);
+      jsonForm.fields[index].label=value.label;
+      jsonForm.fields[index].placeholder=value.placeholder;
+      // console.log(jsonForm);
+      setUpdateTrigger(Date.now())
+    }
+
+    const updateJsonFormInDb=async()=>{
+      const result = await db.update(JsonForms)
+      .set({
+        jsonform:jsonForm
+      }).where(and(eq(JsonForms.id, record.id), eq(JsonForms.createdBy, user?.primaryEmailAddress?.emailAddress)))
+      console.log(result);
     }
   return (
     <div className='p-10'>
@@ -32,7 +58,7 @@ const EditForm = ({params}) => {
           Controller
         </div>
         <div className='md:col-span-2 border rounded-lg p-5 flex items-center justify-center'>
-          <FormUi jsonForm={jsonForm}/>
+          <FormUi jsonForm={jsonForm} onFieldUpdate={onFieldUpdate}/>
         </div>
       </div>
     </div>
