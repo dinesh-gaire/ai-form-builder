@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import FormUi from '../_components/FormUi'
+import { toast } from 'sonner'
 
 const EditForm = ({params}) => {
     const {user} = useUser();
@@ -46,7 +47,10 @@ const EditForm = ({params}) => {
       .set({
         jsonform:jsonForm
       }).where(and(eq(JsonForms.id, record.id), eq(JsonForms.createdBy, user?.primaryEmailAddress?.emailAddress)))
+      .returning({id:JsonForms.id})
       // console.log(result);
+
+      toast('Updated!')
     }
 
     const deleteField=(indexToRemove)=>{
