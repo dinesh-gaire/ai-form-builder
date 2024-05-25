@@ -17,6 +17,7 @@ const EditForm = ({params}) => {
     const [record, setRecord] = useState([]);
     const [selectedTheme, setSelectedTheme] = useState('light');
     const [selectedBackground, setSelectedBackground] = useState();
+    const [selectedStyle, setSelectedStyle] = useState({});
     const router = useRouter();
     useEffect(()=>{
       user && GetFormData();
@@ -28,6 +29,8 @@ const EditForm = ({params}) => {
         // console.log(result[0].jsonform);
         setRecord(result[0])
         setJsonForm(JSON.parse(result[0].jsonform))
+        setSelectedTheme(result[0].theme)
+        setSelectedBackground(result[0].background)
     }
 
     useEffect(()=>{
@@ -62,6 +65,17 @@ const EditForm = ({params}) => {
       jsonForm.fields = result;
       setUpdateTrigger(Date.now())
     }
+
+    const updateControllerFields=async(value, columnName)=>{
+      const result = await db.update(JsonForms)
+      .set({
+        [columnName]:value
+      }).where(and(eq(JsonForms.id, record.id), eq(JsonForms.createdBy, user?.primaryEmailAddress?.emailAddress)))
+      .returning({id:JsonForms.id})
+
+      toast('Updated!')
+    }
+    
   return (
     <div className='p-10'>
       <h2 className='flex gap-2 items-center my-5 cursor-pointer hover:font-bold' onClick={()=>router.back()}>
@@ -69,7 +83,21 @@ const EditForm = ({params}) => {
       </h2>
       <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
         <div className='p-5 border rounded-lg shadow-md'>
-          <Controller selectedTheme={(value)=>setSelectedTheme(value)} selectedBackground={(value)=>setSelectedBackground(value)}/>
+          <Controller 
+            selectedTheme={(value)=>
+              {
+                updateControllerFields(value,'theme')
+                setSelectedTheme(value)
+              }} 
+            selectedBackground={(value)=>
+              {
+                updateControllerFields(value,'background')
+                setSelectedBackground(value)
+              }}
+              selectedStyle={(value)=>{
+                setSelectedStyle(value)
+              }}
+          />
         </div>
         <div className='md:col-span-2 border rounded-lg p-5 flex items-center justify-center' style={{backgroundImage:selectedBackground}}>
           <FormUi 
@@ -77,6 +105,7 @@ const EditForm = ({params}) => {
             onFieldUpdate={onFieldUpdate} 
             deleteField={(index)=>deleteField(index)}
             selectedTheme={selectedTheme}
+            selectedStyle={selectedStyle}
           />
         </div>
       </div>

@@ -9,9 +9,10 @@ import {
 import Themes from '@/app/_data/Themes'
 import GradientBg from '@/app/_data/GradientBg'
 import { Button } from '@/components/ui/button'
+import Style from '@/app/_data/Style'
 
 
-const Controller = ({selectedTheme, selectedBackground}) => {
+const Controller = ({selectedTheme, selectedBackground, selectedStyle}) => {
   const [showMore, setShowMore] = useState(6)
   return (
     <div>
@@ -55,6 +56,20 @@ const Controller = ({selectedTheme, selectedBackground}) => {
       >
         {showMore>6?'Show Less':'Show More'}
       </Button>
+
+      {/* Style Selection Container */}
+      <div>
+        <label>Style</label>
+        <div className='grid grid-cols-3 gap-3 my-2'>
+          {Style.map((item,index)=>(
+            <div key={index}>
+              <div className='cursor-pointer  hover:border-2 rounded-lg' onClick={()=>selectedStyle(item)}>
+                <h2>{item.name}</h2>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
