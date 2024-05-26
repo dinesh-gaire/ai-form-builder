@@ -3,12 +3,14 @@ import { db } from '@/configs'
 import { JsonForms } from '@/configs/schema'
 import { useUser } from '@clerk/nextjs'
 import { and, eq } from 'drizzle-orm'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Share2, SquareArrowOutUpRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import FormUi from '../_components/FormUi'
 import { toast } from 'sonner'
 import Controller from '../_components/Controller'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 const EditForm = ({params}) => {
     const {user} = useUser();
@@ -35,6 +37,7 @@ const EditForm = ({params}) => {
 
     useEffect(()=>{
       if(updateTrigger){
+        console.log(selectedStyle);
         setJsonForm(jsonForm);
         updateJsonFormInDb();
       }
@@ -78,9 +81,17 @@ const EditForm = ({params}) => {
     
   return (
     <div className='p-10'>
-      <h2 className='flex gap-2 items-center my-5 cursor-pointer hover:font-bold' onClick={()=>router.back()}>
-        <ArrowLeft/> Back
-      </h2>
+      <div className='flex justify-between items-center'>
+        <h2 className='flex gap-2 items-center my-5 cursor-pointer hover:font-bold' onClick={()=>router.back()}>
+          <ArrowLeft/> Back
+        </h2>
+        <div className='flex gap-2'>
+          <Link href={'/aiform/'+record?.id} target='_blank'>
+            <Button className='flex gap-2'><SquareArrowOutUpRight/>Live Preview</Button>
+          </Link>
+          <Button className='flex gap-2 bg-green-600 hover:bg-green-700'><Share2/>Share</Button>
+        </div>
+      </div>
       <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
         <div className='p-5 border rounded-lg shadow-md'>
           <Controller 
@@ -95,6 +106,7 @@ const EditForm = ({params}) => {
                 setSelectedBackground(value)
               }}
               selectedStyle={(value)=>{
+                // updateControllerFields(value,'style')
                 setSelectedStyle(value)
               }}
           />
