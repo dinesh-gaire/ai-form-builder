@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/input'
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import {
     Select,
     SelectContent,
@@ -12,12 +12,79 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import FieldEdit from './FieldEdit'
+import { db } from '@/configs'
+import { userResponses } from '@/configs/schema'
+import { toast } from 'sonner'
+import moment from 'moment'
 
   
 
-const FormUi = ({jsonForm, onFieldUpdate, deleteField, selectedTheme, selectedStyle, editable=true}) => {
+const FormUi = ({jsonForm, onFieldUpdate, deleteField, selectedTheme, selectedStyle, editable=true, formId=0}) => {
+  const [formData, setFormData] = useState();
+  let formRef = useRef();
+
+  const handleInputChange=(e)=>{
+    const {name, value} = e.target;
+    setFormData({
+      ...formData,
+      [name]:value
+    })
+  }
+
+  const handleSelectChange=(name, value)=>{
+    setFormData({
+      ...formData,
+      [name]:value
+    })
+  }
+
+  const handleCheckboxChange=(fieldName, itemName, value)=>{
+    const list = formData?.[fieldName]?formData?.[fieldName]:[];
+    // console.log(list);
+    if(value){
+      list.push({
+        label:itemName,
+        value:value
+      })
+      setFormData({
+        ...formData,
+        [fieldName]:list
+      })
+    }else{
+      const result=list.filter((item)=>item.label==itemName)
+      setFormData({
+        ...formData,
+        [fieldName]:result
+      })
+    }
+    // console.log(formData);
+  }
+
+  const onFormSubmit=async(e)=>{
+    e.preventDefault();
+    // console.log(formData);
+    const result = await db.insert(userResponses)
+    .values({
+      jsonResponse:formData,
+      createdAt:moment().format('DD/MM/yyyy'),
+      formRef:formId
+    })
+
+    if(result){
+      formRef.reset();
+      toast('Response Submitted Successfully!')
+    }else{
+      toast('Error while saving your form')
+    }
+  }
   return (
-    <div className='border p-5 md:w-[600px] rounded-lg' data-theme={selectedTheme} style={{border:selectedStyle?.value}}>
+    <form 
+      onSubmit={onFormSubmit} 
+      className='border p-5 md:w-[600px] rounded-lg' 
+      data-theme={selectedTheme} 
+      style={{border:selectedStyle?.value}}
+      ref={(e)=>formRef=e}
+    >
         <h2 className='font-bold text-center text-2xl'>{jsonForm?.formTitle}</h2>
         <h2 className='text-sm text-gray-400 text-center'>{jsonForm?.formHeading}</h2>
         {jsonForm && jsonForm.fields && jsonForm.fields.length > 0 && (
@@ -26,7 +93,7 @@ const FormUi = ({jsonForm, onFieldUpdate, deleteField, selectedTheme, selectedSt
               {field?.fieldType=='select'?
                 <div className='my-3 w-full'>
                   <label className='text-xs text-gray-600'>{field?.label}</label>
-                  <Select>
+                  <Select required={field?.required} onValueChange={(value)=>handleSelectChange(field.fieldName, value)}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder={field?.placeholder} />
                     </SelectTrigger>
@@ -41,10 +108,10 @@ const FormUi = ({jsonForm, onFieldUpdate, deleteField, selectedTheme, selectedSt
                 field?.fieldType=='radio'?
                 <div className='my-3 w-full'>
                   <label className='text-xs text-gray-600'>{field?.label}</label>
-                  <RadioGroup>
+                  <RadioGroup required={field?.required}>
                     {field?.options.map((option,index)=>(
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={option?.label} id={option?.label} />
+                        <RadioGroupItem value={option?.label} id={option?.label} onClick={()=>handleSelectChange(field.fieldName, option.value)}/>
                         <Label htmlFor={option?.label}>{option?.label}</Label>
                       </div>
                     ))}
@@ -57,7 +124,7 @@ const FormUi = ({jsonForm, onFieldUpdate, deleteField, selectedTheme, selectedSt
                   <label className='text-xs text-gray-600'>{field?.label}</label>
                     {field?.options?field?.options?.map((option,index)=>(
                       <div key={index} className='flex gap-2 items-center'>
-                        <Checkbox/>
+                        <Checkbox onCheckedChange={(value)=>handleCheckboxChange(field?.label, option.label, value)}/>
                         <h2>{option.label}</h2>
                       </div>
                     ))
@@ -75,6 +142,9 @@ const FormUi = ({jsonForm, onFieldUpdate, deleteField, selectedTheme, selectedSt
                     type={field?.fieldType}
                     placeholder={field?.placeholder}
                     name={field?.fieldName}
+                    className='bg-transparent'
+                    onChange={(e)=>handleInputChange(e)}
+                    required={field?.required}
                   />
                 </div>
               }
@@ -86,8 +156,8 @@ const FormUi = ({jsonForm, onFieldUpdate, deleteField, selectedTheme, selectedSt
             </div>
           ))
         )}
-        <button className='btn btn-primary'>Submit</button>
-    </div>
+        <button className='btn btn-primary' type='submit'>Submit</button>
+    </form>
   )
 }
 
