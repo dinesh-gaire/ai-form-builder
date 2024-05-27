@@ -1,10 +1,14 @@
 "use client"
 import { LibraryBig, LineChart, MessageSquare, Shield } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from '../../../components/ui/button'
 import { Progress } from "../../../components/ui/progress"
 import Link from 'next/link'
+import { useUser } from '@clerk/nextjs'
+import { db } from '@/configs'
+import { JsonForms } from '@/configs/schema'
+import { desc, eq } from 'drizzle-orm'
 
 
 const SideNav = () => {
@@ -35,7 +39,21 @@ const SideNav = () => {
         },
     ]
 
+    const {user} = useUser();
     const path = usePathname();
+    
+    const [formList, setFormList] = useState([]);
+    useEffect(()=>{
+        user&&GetFromList();
+    },[user])
+    const GetFromList=async()=>{
+        const result =await db.select().from(JsonForms)
+        .where(eq(JsonForms.createdBy, user?.primaryEmailAddress?.emailAddress))
+        .orderBy(desc(JsonForms.id))
+
+        setFormList(result);
+        console.log(result);
+    }
 
   return (
     <div className='h-screen shadow-md border'>
@@ -50,8 +68,8 @@ const SideNav = () => {
         <div className='fixed bottom-7 p-6 w-64'>
             <Button className='w-full'>Create Form</Button>
             <div className='my-7'>
-                <Progress value={33}/>
-                <h2 className='text-sm text-gray-600 mt-2'><strong>2 </strong>Out of <strong>3</strong> File Created</h2>
+                <Progress value={(formList?.length/3)*100}/>
+                <h2 className='text-sm text-gray-600 mt-2'><strong>{formList?.length} </strong>Out of <strong>3</strong> File Created</h2>
                 <h2 className='text-sm text-gray-600 mt-3'>Upgrade your plan for unlimited AI form build</h2>
             </div>
         </div>
