@@ -38,6 +38,7 @@ const LiveAiForm = ({params}) => {
             deleteField={()=>console.log}
             editable={false}
             formId={record.id}
+            enabledSignIn={record?.enabledSignIn}
         />}
         <Link href={process.env.NEXT_PUBLIC_BASE_URL} className='flex gap-2 items-center bg-black text-white px-3 py-1 rounded-full fixed bottom-5 left-5 cursor-pointer'>
             <Image src={'/logo.svg'} width={40} height={40}/>

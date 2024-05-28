@@ -119,6 +119,10 @@ const EditForm = ({params}) => {
                 // updateControllerFields(value,'style')
                 setSelectedStyle(value)
               }}
+              setSignInEnabled={(value)=>{
+                updateControllerFields(value,'enabledSignIn')
+              }}
+
           />
         </div>
         <div className='md:col-span-2 border rounded-lg p-5 flex items-center justify-center' style={{backgroundImage:selectedBackground}}>
