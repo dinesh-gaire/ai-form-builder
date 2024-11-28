@@ -34,7 +34,7 @@ AI Form Builder is a cutting-edge SaaS application designed to revolutionize for
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/ai-form-builder.git
+git clone https://github.com/dinesh-gaire/ai-form-builder.git
 cd ai-form-builder
 ```
 
